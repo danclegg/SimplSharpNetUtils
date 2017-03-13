@@ -286,7 +286,11 @@ namespace SimplSharpNetUtils
             HttpClientRequest req = new HttpClientRequest();
             HttpClientResponse resp;
             string reqUrl = "";
-            CrestronConsole.PrintLine("Got to SendCommand");
+            //CrestronConsole.PrintLine("Got to SendCommand");
+            CrestronConsole.PrintLine("SendCommand method - baseURL: " + baseURL);
+            CrestronConsole.PrintLine("SendCommand method - resource: " + resource);
+            CrestronConsole.PrintLine("SendCommand method - psk: " + psk);
+            CrestronConsole.PrintLine("SendCommand method - cmd: " + cmd);
 
             if (baseURL.EndsWith("/"))
             {
@@ -298,7 +302,12 @@ namespace SimplSharpNetUtils
             }
 
             req.Header.AddHeader(new HttpHeader("X-Auth-PSK: " + psk));
+            foreach (HttpHeader h in req.Header)
+            {
+                CrestronConsole.PrintLine("SendCommand Header: " + h);
+            }
             string body = jsonParse(cmd);
+            CrestronConsole.PrintLine("SendCommand method - parsed body: " + body);
             try {
                 client.KeepAlive = false;
                 client.Port = Port;
@@ -307,6 +316,7 @@ namespace SimplSharpNetUtils
 
                 req.ContentString = body;
                 resp = client.Dispatch(req);
+                CrestronConsole.PrintLine("SendCommand response code: " + resp.Code);
 
                 if (OnResponse != null)
                     OnResponse(new SimplSharpString(resp.ContentString));
