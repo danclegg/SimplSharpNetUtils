@@ -40,7 +40,7 @@ namespace SimplSharpNetUtils
         public string jsonParse(string input)
         {
 
-            CrestronConsole.PrintLine("jsonParse parsing: " + input);
+            //CrestronConsole.PrintLine("jsonParse parsing: " + input);
             string parsedBody = "";
             Int32 index = 0;
 
@@ -92,7 +92,7 @@ namespace SimplSharpNetUtils
                 }
             }
 
-            CrestronConsole.PrintLine("jsonParse - parsedBody: " + parsedBody);
+            //CrestronConsole.PrintLine("jsonParse - parsedBody: " + parsedBody);
                 
             return parsedBody;
         }
@@ -107,7 +107,7 @@ namespace SimplSharpNetUtils
                 return result;
             }
             catch(Exception ex){
-                CrestronConsole.PrintLine("Error in Sony IP Control Command: " + ex.StackTrace);
+                //CrestronConsole.PrintLine("Error in Sony IP Control Command: " + ex.StackTrace);
                 return -1;
             }
         }
@@ -214,9 +214,9 @@ namespace SimplSharpNetUtils
                 
                 req.Url.Parse(URL);
                 
-                CrestronConsole.PrintLine(req.Url.ToString());
-                CrestronConsole.PrintLine(body);
-                CrestronConsole.PrintLine(req.RequestType.ToString());
+                //CrestronConsole.PrintLine(req.Url.ToString());
+                //CrestronConsole.PrintLine(body);
+                //CrestronConsole.PrintLine(req.RequestType.ToString());
                 req.RequestType = RequestType.Post;
                 
                 req.ContentString = body;
@@ -260,9 +260,9 @@ namespace SimplSharpNetUtils
 
                 req.Url.Parse(URL);
 
-                CrestronConsole.PrintLine(req.Url.ToString());
-                CrestronConsole.PrintLine(body);
-                CrestronConsole.PrintLine(req.RequestType.ToString());
+                //CrestronConsole.PrintLine(req.Url.ToString());
+                //CrestronConsole.PrintLine(body);
+                //CrestronConsole.PrintLine(req.RequestType.ToString());
                 
                 req.RequestType = RequestType.Get;
 
@@ -291,10 +291,10 @@ namespace SimplSharpNetUtils
             HttpClientResponse resp;
             string reqUrl = "";
             //CrestronConsole.PrintLine("Got to SendCommand");
-            CrestronConsole.PrintLine("SendCommand method - baseURL: " + baseURL);
-            CrestronConsole.PrintLine("SendCommand method - resource: " + resource);
-            CrestronConsole.PrintLine("SendCommand method - psk: " + psk);
-            CrestronConsole.PrintLine("SendCommand method - cmd: " + cmd);
+            //CrestronConsole.PrintLine("SendCommand method - baseURL: " + baseURL);
+            //CrestronConsole.PrintLine("SendCommand method - resource: " + resource);
+            //CrestronConsole.PrintLine("SendCommand method - psk: " + psk);
+            //CrestronConsole.PrintLine("SendCommand method - cmd: " + cmd);
 
             if (baseURL.EndsWith("/"))
             {
@@ -308,10 +308,10 @@ namespace SimplSharpNetUtils
             req.Header.AddHeader(new HttpHeader("X-Auth-PSK: " + psk));
             foreach (HttpHeader h in req.Header)
             {
-                CrestronConsole.PrintLine("SendCommand Header: " + h);
+                //CrestronConsole.PrintLine("SendCommand Header: " + h);
             }
             string body = jsonParse(cmd);
-            CrestronConsole.PrintLine("SendCommand method - parsed body: " + body);
+            //CrestronConsole.PrintLine("SendCommand method - parsed body: " + body);
             try {
                 client.KeepAlive = false;
                 client.Port = Port;
@@ -320,7 +320,7 @@ namespace SimplSharpNetUtils
 
                 req.ContentString = body;
                 resp = client.Dispatch(req);
-                CrestronConsole.PrintLine("SendCommand response code: " + resp.Code);
+                //CrestronConsole.PrintLine("SendCommand response code: " + resp.Code);
 
                 if (OnResponse != null)
                     OnResponse(new SimplSharpString(resp.ContentString));
@@ -329,48 +329,9 @@ namespace SimplSharpNetUtils
             }
             catch (Exception ex)
             {
-                CrestronConsole.PrintLine("Error in Sony IP Control Command: " + ex.StackTrace);
+                CrestronConsole.PrintLine("Error in SimplSharpNetUtils.SendCommand: " + ex.StackTrace);
             return 0;
             }
         }
-        //public int SonyIPControl_SendCommand(string cmd, string psk)
-        //{
-        //    HttpClient client = new HttpClient();
-        //    HttpClientRequest req = new HttpClientRequest();
-        //    HttpClientResponse resp;
-
-        //    req.Header.AddHeader(new HttpHeader("Content-Type: text/xml; charset=UTF-8"));
-        //    req.Header.AddHeader(new HttpHeader("SOAPACTION: \"urn:schemas-sony-com:service:IRCC:1#X_SendIRCC\""));
-        //    req.Header.AddHeader(new HttpHeader("X-Auth-PSK: " + psk));
-
-        //    string body = "<?xml version=\"1.0\"?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
-        //        "<s:Body><u:X_SendIRCC xmlns:u=\"urn:schemas-sony-com:service:IRCC:1\"><IRCCCode>" +
-        //        cmd +
-        //        "</IRCCCode></u:X_SendIRCC></s:Body></s:Envelope>";
-
-        //    try
-        //    {
-        //        client.KeepAlive = false;
-        //        client.Port = Port;
-        //        req.Url.Parse(URL);
-        //        req.RequestType = RequestType.Post;
-
-        //        req.ContentString = body;
-        //        resp = client.Dispatch(req);
-
-        //        if (OnResponse != null)
-        //            OnResponse(new SimplSharpString(resp.ContentString));
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        if (OnError != null)
-        //            OnError(new SimplSharpString(e.ToString() + "\n\r" + e.StackTrace));
-
-        //        return -1;
-        //    }
-
-
-        //    return 0;
-        //}
     }
 }
