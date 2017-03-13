@@ -45,9 +45,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
+    <Reference Include="SimplSharpCustomAttributesInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ProgramData\Crestron\SDK\SimplSharpCustomAttributesInterface.dll</HintPath>
+    </Reference>
     <Reference Include="SimplSharpHelperInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\ProgramData\Crestron\SDK\SimplSharpHelperInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="SimplSharpNewtonsoft, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\ProgramData\Crestron\SDK\SimplSharpNewtonsoft.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -68,15 +76,19 @@
         <ProgramIdTag>SimplSharpNetUtils</ProgramIdTag>
         <SystemName>SimplSharpNetUtils</SystemName>
         <Programmer />
-        <ArchiveFilename>C:\Users\devinc\Documents\Visual Studio 2008\Projects\SimplSharpNetUtils\SimplSharpNetUtils\bin\SimplSharpNetUtils.clz</ArchiveFilename>
+        <ArchiveFilename>C:\repos\SimplSharpNetUtils\SimplSharpNetUtils\bin\SimplSharpNetUtils.clz</ArchiveFilename>
         <MinFirmwareVersion>1.007.0017</MinFirmwareVersion>
-        <CompiledOn>8/15/2014 9:09:17 PM</CompiledOn>
+        <CompiledOn>3/9/2017 11:00:00 PM</CompiledOn>
         <AdditionalInfo />
         <EmbedSourceArchive>False</EmbedSourceArchive>
         <CopyTo>
           <DebugAnyCPU>
             <Folder>.\SimplPlus</Folder>
+            <Folder>..\..\..\crestron-tec-lite\src\RMC3</Folder>
           </DebugAnyCPU>
+          <ReleaseAnyCPU>
+            <Folder>..\..\..\crestron-tec-lite\src\RMC3\NetUtils</Folder>
+          </ReleaseAnyCPU>
         </CopyTo>
         <OriginalReferenceSources />
       </FlavorProperties>

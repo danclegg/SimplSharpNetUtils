@@ -4,4 +4,5 @@
 *.sig
 SimplSharpNetUtils/SimplPlus/SPlsWork/
 SimplSharpNetUtils/obj/
-
+SimplSharpNetUtils/bin/
+SimplSharpNetUtils_Source.zip
