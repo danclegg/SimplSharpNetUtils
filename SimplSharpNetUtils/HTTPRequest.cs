@@ -39,6 +39,8 @@ namespace SimplSharpNetUtils
 
         public string jsonParse(string input)
         {
+
+            CrestronConsole.PrintLine("jsonParse parsing: " + input);
             string parsedBody = "";
             Int32 index = 0;
 
@@ -89,6 +91,8 @@ namespace SimplSharpNetUtils
                     }
                 }
             }
+
+            CrestronConsole.PrintLine("jsonParse - parsedBody: " + parsedBody);
                 
             return parsedBody;
         }
