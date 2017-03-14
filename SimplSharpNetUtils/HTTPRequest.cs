@@ -39,8 +39,10 @@ namespace SimplSharpNetUtils
 
         public string jsonParse(string input)
         {
-
+            #if DEBUG
             //CrestronConsole.PrintLine("jsonParse parsing: " + input);
+            #endif
+
             string parsedBody = "";
             Int32 index = 0;
 
@@ -91,8 +93,9 @@ namespace SimplSharpNetUtils
                     }
                 }
             }
-
+            #if DEBUG
             //CrestronConsole.PrintLine("jsonParse - parsedBody: " + parsedBody);
+            #endif
                 
             return parsedBody;
         }
@@ -107,7 +110,7 @@ namespace SimplSharpNetUtils
                 return result;
             }
             catch(Exception ex){
-                //CrestronConsole.PrintLine("Error in Sony IP Control Command: " + ex.StackTrace);
+                CrestronConsole.PrintLine("Error: " + ex.StackTrace);
                 return -1;
             }
         }
@@ -214,9 +217,12 @@ namespace SimplSharpNetUtils
                 
                 req.Url.Parse(URL);
                 
+                #if DEBUG
                 //CrestronConsole.PrintLine(req.Url.ToString());
                 //CrestronConsole.PrintLine(body);
                 //CrestronConsole.PrintLine(req.RequestType.ToString());
+                #endif
+
                 req.RequestType = RequestType.Post;
                 
                 req.ContentString = body;
@@ -260,9 +266,11 @@ namespace SimplSharpNetUtils
 
                 req.Url.Parse(URL);
 
+                #if DEBUG
                 //CrestronConsole.PrintLine(req.Url.ToString());
                 //CrestronConsole.PrintLine(body);
                 //CrestronConsole.PrintLine(req.RequestType.ToString());
+                #endif
                 
                 req.RequestType = RequestType.Get;
 
@@ -290,11 +298,14 @@ namespace SimplSharpNetUtils
             HttpClientRequest req = new HttpClientRequest();
             HttpClientResponse resp;
             string reqUrl = "";
-            //CrestronConsole.PrintLine("Got to SendCommand");
-            //CrestronConsole.PrintLine("SendCommand method - baseURL: " + baseURL);
-            //CrestronConsole.PrintLine("SendCommand method - resource: " + resource);
-            //CrestronConsole.PrintLine("SendCommand method - psk: " + psk);
-            //CrestronConsole.PrintLine("SendCommand method - cmd: " + cmd);
+
+            #if DEBUG
+            CrestronConsole.PrintLine("Got to SendCommand");
+            CrestronConsole.PrintLine("SendCommand method - baseURL: " + baseURL);
+            CrestronConsole.PrintLine("SendCommand method - resource: " + resource);
+            CrestronConsole.PrintLine("SendCommand method - psk: " + psk);
+            CrestronConsole.PrintLine("SendCommand method - cmd: " + cmd);
+            #endif
 
             if (baseURL.EndsWith("/"))
             {
@@ -306,12 +317,20 @@ namespace SimplSharpNetUtils
             }
 
             req.Header.AddHeader(new HttpHeader("X-Auth-PSK: " + psk));
+            
+            #if DEBUG
             foreach (HttpHeader h in req.Header)
             {
-                //CrestronConsole.PrintLine("SendCommand Header: " + h);
+                CrestronConsole.PrintLine("SendCommand Header: " + h);
             }
+            #endif
+
             string body = jsonParse(cmd);
-            //CrestronConsole.PrintLine("SendCommand method - parsed body: " + body);
+            
+            #if DEBUG
+            CrestronConsole.PrintLine("SendCommand method - parsed body: " + body);
+            #endif
+
             try {
                 client.KeepAlive = false;
                 client.Port = Port;
@@ -320,7 +339,9 @@ namespace SimplSharpNetUtils
 
                 req.ContentString = body;
                 resp = client.Dispatch(req);
-                //CrestronConsole.PrintLine("SendCommand response code: " + resp.Code);
+                #if DEBUG
+                CrestronConsole.PrintLine("SendCommand response code: " + resp.Code);
+                #endif
 
                 if (OnResponse != null)
                     OnResponse(new SimplSharpString(resp.ContentString));
