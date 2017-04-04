@@ -210,17 +210,6 @@ namespace SimplSharpNetUtils
                 client.KeepAlive = false;
                 client.Port = Port;
                 
-                /*if (User.Length > 0)
-                {
-                    client.UserName = User;
-                    client.Password = Password;
-                }
-                else
-                {
-                    client.UserName = "";
-                    client.Password = "";
-                }*/
-                
                 req.Url.Parse(URL);
                 
                 #if DEBUG
@@ -228,6 +217,19 @@ namespace SimplSharpNetUtils
                 //CrestronConsole.PrintLine(body);
                 //CrestronConsole.PrintLine(req.RequestType.ToString());
                 #endif
+
+                // Check for valid connection
+                try {  
+                    req.RequestType = RequestType.Head;
+                    string testRequest = client.Get(req.Url.ToString());
+                }
+                catch (Exception innerEx)
+                {
+                    this.errorExists = 1;
+                    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
+                    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
+
+                }
 
                 req.RequestType = RequestType.Post;
                 
@@ -282,7 +284,21 @@ namespace SimplSharpNetUtils
                 //CrestronConsole.PrintLine(body);
                 //CrestronConsole.PrintLine(req.RequestType.ToString());
                 #endif
-                
+
+                // Check for valid connection
+                try
+                {
+                    req.RequestType = RequestType.Head;
+                    string testRequest = client.Get(req.Url.ToString());
+                }
+                catch (Exception innerEx)
+                {
+                    this.errorExists = 1;
+                    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
+                    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
+
+                }
+
                 req.RequestType = RequestType.Get;
 
                 //req.ContentString = body;
@@ -348,6 +364,20 @@ namespace SimplSharpNetUtils
             CrestronConsole.PrintLine("SendCommand method - parsed body: " + body);
             #endif
 
+            // Check for valid connection
+            try
+            {
+                req.RequestType = RequestType.Head;
+                string testRequest = client.Get(req.Url.ToString());
+            }
+            catch (Exception innerEx)
+            {
+                this.errorExists = 1;
+                this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
+                OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
+
+            }
+
             try {
                 client.KeepAlive = false;
                 client.Port = Port;
@@ -363,8 +393,6 @@ namespace SimplSharpNetUtils
 
                 if (OnResponse != null)
                     OnResponse(new SimplSharpString(resp.ContentString));
-
-                return 1;
             }
             catch (Exception ex)
             {
