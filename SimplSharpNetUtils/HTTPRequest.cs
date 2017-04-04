@@ -80,6 +80,7 @@ namespace SimplSharpNetUtils
                 {
                     this.errorExists = 1;
                     this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
+                    CrestronConsole.PrintLine("HTTP Connection Error - Cannot connect to " + req.Url);
                     OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
 
                 }
@@ -113,6 +114,7 @@ namespace SimplSharpNetUtils
                 {
                     this.errorExists = 1;
                     this.errorMessage = string.Concat(e.ToString(), e.InnerException.ToString());
+                    CrestronConsole.PrintLine("HTTP Connection Error - Cannot connect to " + req.Url);
                     OnError(new SimplSharpString(e.ToString() + "\n\r" + e.StackTrace));
                 }
 
@@ -194,7 +196,7 @@ namespace SimplSharpNetUtils
                 {
                     this.errorExists = 1;
                     this.errorMessage = string.Concat(e.ToString(), e.InnerException.ToString());
-                    
+                    CrestronConsole.PrintLine("HTTP Connection Error - Cannot connect to " + req.Url);
                     OnError(new SimplSharpString(e.ToString() + "\n\r" + e.StackTrace));
                 }
 
