@@ -40,139 +40,6 @@ namespace SimplSharpNetUtils
         public delegate void HTTPClientStringCallback(SimplSharpString userobj, HTTP_CALLBACK_ERROR error);
         public HTTPClientStringCallback httpCallback { get; set; }
 
-        public string jsonParse(string input)
-        {
-            #if DEBUG
-            //CrestronConsole.PrintLine("jsonParse parsing: " + input);
-            #endif
-
-            string parsedBody = "";
-            Int32 index = 0;
-
-            //string respString = JsonConvert.SerializeObject(input);
-
-            /* Issues exist when running JsonConvert, so it is assumed that input is a valid JSON body */
-            string respString = input;
-            if (respString.IndexOf("error") > 0)
-            {
-                index = respString.IndexOf('[', respString.IndexOf("error"));
-
-                string tmp = "";
-                while (index < respString.Length)
-                {
-                    Char current = respString[index];
-
-                    if (current != ']')
-                    {
-                        index++;
-                        tmp += current;
-                        continue;
-                    }
-                    else
-                    {
-                        // Push last result
-                        index++;
-                        return tmp;
-                    }
-                }
-            }
-            else if (respString.IndexOf("result") > 0)
-            {
-                index = respString.IndexOf('[', respString.IndexOf("result"));
-
-                string tmp = "";
-                while (index < respString.Length)
-                {
-                    Char current = respString[index];
-
-                    if (current != ']')
-                    {
-                        index++;
-                        tmp += current;
-                        continue;
-                    }
-                    else
-                    {
-                        // Push last result
-                        index++;
-                        return tmp;
-                    }
-                }
-            }
-            #if DEBUG
-            //CrestronConsole.PrintLine("jsonParse - parsedBody: " + parsedBody);
-            #endif
-                
-            return parsedBody;
-        }
-
-        private static int TryParse(string str)
-        {
-            int result;
-
-            try
-            {
-                result = Int32.Parse(str);
-                return result;
-            }
-            catch(Exception ex){
-                CrestronConsole.PrintLine("Error: " + ex.StackTrace);
-                return -1;
-            }
-        }
-
-        public string getAttributeValue(List<string> queryPath, string bodyToQuery)
-        {
-            JObject jsonObject = JObject.Parse(bodyToQuery);
-
-            if ( queryPath.Count > 1)
-            {
-                string newBody = "";
-                int result = TryParse(queryPath.First());
-                if (result >= 0)
-                {
-                    newBody = (string)jsonObject[queryPath.First()[result]];
-                }
-                else
-                {
-                    newBody = (string)jsonObject[queryPath.First()];
-                }
-                queryPath.RemoveAt(0);
-                getAttributeValue(queryPath, newBody);
-            }
-            string attribute = (string)jsonObject[queryPath.First()];
-            return attribute;
-        }
-
-        public string getAttributeValue(string queryPath, string bodyToQuery)
-        {
-            JObject jsonObject = JObject.Parse(bodyToQuery);
-            List<string> queryArr = new List<string>();
-            string[] tmpArr = queryPath.Split('.');
-            foreach (string s in tmpArr)
-            {
-                queryArr.Add(s);
-            }
-
-            if ( queryArr.Count > 1)
-            {
-                string newBody = "";
-                int result = TryParse(queryArr.First());
-                if (result >= 0)
-                {
-                    newBody = (string)jsonObject[queryArr.First()[result]];
-                }
-                else
-                {
-                    newBody = (string)jsonObject[queryArr.First()];
-                }
-                queryArr.RemoveAt(0);
-                getAttributeValue(queryArr, newBody);
-            }
-            string attribute = (string)jsonObject[queryArr.First()];
-            return attribute;
-        }
-
         // Headers are a semicolon delimited list of header key-value pairs, i.e.
         // "Accept: application/json; Content-Type: application/json;"
 
@@ -193,20 +60,6 @@ namespace SimplSharpNetUtils
 
             try
             {
-                /*RequestType rType;
-
-                switch (type.ToLower())
-                {
-                    case "get":
-                        rType = RequestType.Get;
-                        break;
-                    case "post":
-                        rType = RequestType.Post;
-                        break;
-                    default:
-                        throw new InvalidOperationException("Invalid request type");
-                }*/
-
                 client.KeepAlive = false;
                 client.Port = Port;
                 
@@ -238,7 +91,21 @@ namespace SimplSharpNetUtils
                 resp = client.Dispatch(req);
 
                 if (OnResponse != null)
-                    OnResponse(new SimplSharpString(resp.ContentString));
+                {
+                    string contentString = resp.ContentString;
+                    contentString = contentString.Trim();
+                    if (contentString.StartsWith("\""))
+                    {
+                        contentString = contentString.Remove(0, 1);
+                    }
+
+                    if (contentString.EndsWith("\""))
+                    {
+                        contentString = contentString.Remove(contentString.LastIndexOf("\""), 1);
+                    }
+
+                    OnResponse(new SimplSharpString(contentString));
+                }
             }
             catch (Exception e)
             {
@@ -305,7 +172,21 @@ namespace SimplSharpNetUtils
                 resp = client.Dispatch(req);
 
                 if (OnResponse != null)
-                    OnResponse(new SimplSharpString(resp.ContentString));
+                {
+                    string contentString = resp.ContentString;
+                    contentString = contentString.Trim();
+                    if (contentString.StartsWith("\""))
+                    {
+                        contentString = contentString.Remove(0, 1);
+                    }
+
+                    if (contentString.EndsWith("\""))
+                    {
+                        contentString = contentString.Remove(contentString.LastIndexOf("\""), 1);
+                    }
+
+                    OnResponse(new SimplSharpString(contentString));
+                }
             }
             catch (Exception e)
             {
@@ -392,7 +273,21 @@ namespace SimplSharpNetUtils
                 #endif
 
                 if (OnResponse != null)
-                    OnResponse(new SimplSharpString(resp.ContentString));
+                {
+                    string contentString = resp.ContentString;
+                    contentString = contentString.Trim();
+                    if ( contentString.StartsWith("\""))
+                    {
+                        contentString = contentString.Remove(0, 1);
+                    }
+
+                    if (contentString.EndsWith("\""))
+                    {
+                        contentString = contentString.Remove(contentString.LastIndexOf("\""), 1);
+                    }
+
+                    OnResponse(new SimplSharpString(contentString));
+                }
             }
             catch (Exception ex)
             {
