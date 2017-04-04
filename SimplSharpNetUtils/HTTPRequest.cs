@@ -25,6 +25,9 @@ namespace SimplSharpNetUtils
 
         public int numResponseAttributes = 0;
 
+        public int errorExists = 0;
+        public string errorMessage = string.Empty;
+
         //public String User = "";
         //public String Password = "";
 
@@ -46,7 +49,10 @@ namespace SimplSharpNetUtils
             string parsedBody = "";
             Int32 index = 0;
 
-            string respString = JsonConvert.SerializeObject(input);
+            //string respString = JsonConvert.SerializeObject(input);
+
+            /* Issues exist when running JsonConvert, so it is assumed that input is a valid JSON body */
+            string respString = input;
             if (respString.IndexOf("error") > 0)
             {
                 index = respString.IndexOf('[', respString.IndexOf("error"));
@@ -226,6 +232,7 @@ namespace SimplSharpNetUtils
                 req.RequestType = RequestType.Post;
                 
                 req.ContentString = body;
+
                 resp = client.Dispatch(req);
 
                 if (OnResponse != null)
@@ -234,7 +241,11 @@ namespace SimplSharpNetUtils
             catch (Exception e)
             {
                 if (OnError != null)
+                {
+                    this.errorExists = 1;
+                    this.errorMessage = string.Concat(e.ToString(), e.InnerException.ToString());
                     OnError(new SimplSharpString(e.ToString() + "\n\r" + e.StackTrace));
+                }
 
                 return -1;
             }
@@ -283,7 +294,12 @@ namespace SimplSharpNetUtils
             catch (Exception e)
             {
                 if (OnError != null)
+                {
+                    this.errorExists = 1;
+                    this.errorMessage = string.Concat(e.ToString(), e.InnerException.ToString());
+                    
                     OnError(new SimplSharpString(e.ToString() + "\n\r" + e.StackTrace));
+                }
 
                 return -1;
             }
@@ -325,7 +341,8 @@ namespace SimplSharpNetUtils
             }
             #endif
 
-            string body = jsonParse(cmd);
+            //string body = jsonParse(cmd);
+            string body = cmd;
             
             #if DEBUG
             CrestronConsole.PrintLine("SendCommand method - parsed body: " + body);
@@ -341,6 +358,7 @@ namespace SimplSharpNetUtils
                 resp = client.Dispatch(req);
                 #if DEBUG
                 CrestronConsole.PrintLine("SendCommand response code: " + resp.Code);
+                CrestronConsole.PrintLine("SendCommand response: " + resp.ContentString) ;
                 #endif
 
                 if (OnResponse != null)
@@ -350,9 +368,18 @@ namespace SimplSharpNetUtils
             }
             catch (Exception ex)
             {
+                if (OnError != null)
+                {
+                    this.errorExists = 1;
+                    this.errorMessage = string.Concat(ex.ToString(), ex.InnerException.ToString());
+
+                    OnError(new SimplSharpString(ex.ToString() + "\n\r" + ex.StackTrace));
+                }
+
                 CrestronConsole.PrintLine("Error in SimplSharpNetUtils.SendCommand: " + ex.StackTrace);
-            return 0;
+                return -1;            
             }
+            return 0;
         }
     }
 }
