@@ -15,11 +15,15 @@ using Crestron.SimplSharp.Net;
 using Crestron.SimplSharp.Net.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Net;
 
 namespace SimplSharpNetUtils
 {
     public class HTTPRequest
     {
+        private const string TRUE = "true";
+        private const string FALSE = "false";
+
         public String URL;
         public int Port = 80; // can be overridden
 
@@ -42,6 +46,35 @@ namespace SimplSharpNetUtils
 
         // Headers are a semicolon delimited list of header key-value pairs, i.e.
         // "Accept: application/json; Content-Type: application/json;"
+
+        public string Ping(string urlToPing)
+        {
+            if (string.IsNullOrEmpty(urlToPing))
+            {
+                urlToPing = this.URL;
+            }
+
+            urlToPing = urlToPing.Replace("/",string.Empty);
+            urlToPing = urlToPing.Replace("https:", string.Empty);
+            urlToPing = urlToPing.Replace("http", string.Empty);
+
+            HttpClient pingClient = new HttpClient();
+            Connection connection = pingClient.Connect(urlToPing, 80);
+            if (!connection.DataSocketConnected)
+            {
+#if DEBUG
+                CrestronConsole.PrintLine("Host at " + urlToPing + " is not responding");
+#endif
+                return FALSE;
+            }
+            else
+            {
+#if DEBUG
+                CrestronConsole.PrintLine("Ping to " + urlToPing + " worked");
+#endif
+                return TRUE;
+            }
+        }
 
         public int Post(string body, string headers)
         {
@@ -70,20 +103,27 @@ namespace SimplSharpNetUtils
                 //CrestronConsole.PrintLine(body);
                 //CrestronConsole.PrintLine(req.RequestType.ToString());
                 #endif
+                string hostAlive = Ping(URL);
 
-                // Check for valid connection
-                try {  
-                    req.RequestType = RequestType.Head;
-                    string testRequest = client.Get(req.Url.ToString());
-                }
-                catch (Exception innerEx)
+                if (hostAlive == FALSE)
                 {
                     this.errorExists = 1;
-                    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
-                    CrestronConsole.PrintLine("HTTP Connection Error - Cannot connect to " + req.Url);
-                    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
-
+                    this.errorMessage = "HTTP Connection Error - Cannot connect to " + URL;
+                    OnError(new SimplSharpString(this.errorMessage));
                 }
+
+                //// Check for valid connection
+                //try {  
+                //    req.RequestType = RequestType.Head;
+                //    string testRequest = client.Get(req.Url.ToString());
+                //}
+                //catch (Exception innerEx)
+                //{
+                //    this.errorExists = 1;
+                //    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
+                //    CrestronConsole.PrintLine("HTTP Connection Error - Cannot connect to " + req.Url);
+                //    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
+                //}
 
                 req.RequestType = RequestType.Post;
                 
@@ -154,18 +194,27 @@ namespace SimplSharpNetUtils
                 //CrestronConsole.PrintLine(req.RequestType.ToString());
                 #endif
 
-                // Check for valid connection
-                try
-                {
-                    req.RequestType = RequestType.Head;
-                    string testRequest = client.Get(req.Url.ToString());
-                }
-                catch (Exception innerEx)
+                //// Check for valid connection
+                //try
+                //{
+                //    req.RequestType = RequestType.Head;
+                //    string testRequest = client.Get(req.Url.ToString());
+                //}
+                //catch (Exception innerEx)
+                //{
+                //    this.errorExists = 1;
+                //    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
+                //    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
+
+                //}
+
+                string hostAlive = Ping(URL);
+
+                if (hostAlive == FALSE)
                 {
                     this.errorExists = 1;
-                    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
-                    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
-
+                    this.errorMessage = "HTTP Connection Error - Cannot connect to " + URL;
+                    OnError(new SimplSharpString(this.errorMessage));
                 }
 
                 req.RequestType = RequestType.Get;
@@ -248,17 +297,25 @@ namespace SimplSharpNetUtils
             #endif
 
             // Check for valid connection
-            try
-            {
-                req.RequestType = RequestType.Head;
-                string testRequest = client.Get(req.Url.ToString());
-            }
-            catch (Exception innerEx)
+            //try
+            //{
+            //    req.RequestType = RequestType.Head;
+            //    string testRequest = client.Get(req.Url.ToString());
+            //}
+            //catch (Exception innerEx)
+            //{
+            //    this.errorExists = 1;
+            //    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
+            //    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
+
+            //}
+            string hostAlive = Ping(URL);
+
+            if (hostAlive == FALSE)
             {
                 this.errorExists = 1;
-                this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
-                OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
-
+                this.errorMessage = "HTTP Connection Error - Cannot connect to " + URL;
+                OnError(new SimplSharpString(this.errorMessage));
             }
 
             try {
