@@ -1,7 +1,7 @@
 ﻿/* HTTPRequest.cs
  *
  * Handle a simple HTTPRequest.  This is a bridge between SimplSharp and Simpl+
- * 
+ *
  * Note that a username/password can be supplied.
  *
  */
@@ -15,7 +15,6 @@ using Crestron.SimplSharp.Net;
 using Crestron.SimplSharp.Net.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Net;
 
 namespace SimplSharpNetUtils
 {
@@ -44,48 +43,21 @@ namespace SimplSharpNetUtils
         public delegate void HTTPClientStringCallback(SimplSharpString userobj, HTTP_CALLBACK_ERROR error);
         public HTTPClientStringCallback httpCallback { get; set; }
 
-        // Headers are a semicolon delimited list of header key-value pairs, i.e.
-        // "Accept: application/json; Content-Type: application/json;"
-
-        public string Ping(string urlToPing)
-        {
-            if (string.IsNullOrEmpty(urlToPing))
-            {
-                urlToPing = this.URL;
-            }
-
-            urlToPing = urlToPing.Replace("/",string.Empty);
-            urlToPing = urlToPing.Replace("https:", string.Empty);
-            urlToPing = urlToPing.Replace("http", string.Empty);
-
-            HttpClient pingClient = new HttpClient();
-            Connection connection = pingClient.Connect(urlToPing, 80);
-            if (!connection.DataSocketConnected)
-            {
-#if DEBUG
-                CrestronConsole.PrintLine("Host at " + urlToPing + " is not responding");
-#endif
-                return FALSE;
-            }
-            else
-            {
-#if DEBUG
-                CrestronConsole.PrintLine("Ping to " + urlToPing + " worked");
-#endif
-                return TRUE;
-            }
-        }
-
         public int Post(string body, string headers)
         {
             HttpClient client = new HttpClient();
             HttpClientRequest req = new HttpClientRequest();
             HttpClientResponse resp;
 
+
+            // Headers are a semicolon delimited list of header key-value pairs, i.e.
+            // "Accept: application/json; Content-Type: application/json;"
+
             if (headers != null && headers != String.Empty)
             {
                 string[] headerArr = headers.Split(';');
-                foreach(string h in headerArr){
+                foreach (string h in headerArr)
+                {
                     HttpHeader head = new HttpHeader(h);
                     req.Header.AddHeader(head);
                 }
@@ -93,44 +65,18 @@ namespace SimplSharpNetUtils
 
             try
             {
+                // Set client & request parameters
                 client.KeepAlive = false;
                 client.Port = Port;
-                
+
                 req.Url.Parse(URL);
-                
-                #if DEBUG
-                //CrestronConsole.PrintLine(req.Url.ToString());
-                //CrestronConsole.PrintLine(body);
-                //CrestronConsole.PrintLine(req.RequestType.ToString());
-                #endif
-                string hostAlive = Ping(URL);
-
-                if (hostAlive == FALSE)
-                {
-                    this.errorExists = 1;
-                    this.errorMessage = "HTTP Connection Error - Cannot connect to " + URL;
-                    OnError(new SimplSharpString(this.errorMessage));
-                }
-
-                //// Check for valid connection
-                //try {  
-                //    req.RequestType = RequestType.Head;
-                //    string testRequest = client.Get(req.Url.ToString());
-                //}
-                //catch (Exception innerEx)
-                //{
-                //    this.errorExists = 1;
-                //    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
-                //    CrestronConsole.PrintLine("HTTP Connection Error - Cannot connect to " + req.Url);
-                //    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
-                //}
-
                 req.RequestType = RequestType.Post;
-                
                 req.ContentString = body;
 
+                // Make the request
                 resp = client.Dispatch(req);
 
+                // Cleanup leading/trailling spaces & quotes from response and return response
                 if (OnResponse != null)
                 {
                     string contentString = resp.ContentString;
@@ -139,7 +85,6 @@ namespace SimplSharpNetUtils
                     {
                         contentString = contentString.Remove(0, 1);
                     }
-
                     if (contentString.EndsWith("\""))
                     {
                         contentString = contentString.Remove(contentString.LastIndexOf("\""), 1);
@@ -150,6 +95,7 @@ namespace SimplSharpNetUtils
             }
             catch (Exception e)
             {
+                // Print any errors to the Crestron Console
                 if (OnError != null)
                 {
                     this.errorExists = 1;
@@ -160,7 +106,7 @@ namespace SimplSharpNetUtils
 
                 return -1;
             }
-       
+
 
             return 0;
         }
@@ -182,46 +128,17 @@ namespace SimplSharpNetUtils
 
             try
             {
-
+                // Set client & request parameters
                 client.KeepAlive = false;
                 client.Port = Port;
 
                 req.Url.Parse(URL);
-
-                #if DEBUG
-                //CrestronConsole.PrintLine(req.Url.ToString());
-                //CrestronConsole.PrintLine(body);
-                //CrestronConsole.PrintLine(req.RequestType.ToString());
-                #endif
-
-                //// Check for valid connection
-                //try
-                //{
-                //    req.RequestType = RequestType.Head;
-                //    string testRequest = client.Get(req.Url.ToString());
-                //}
-                //catch (Exception innerEx)
-                //{
-                //    this.errorExists = 1;
-                //    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
-                //    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
-
-                //}
-
-                string hostAlive = Ping(URL);
-
-                if (hostAlive == FALSE)
-                {
-                    this.errorExists = 1;
-                    this.errorMessage = "HTTP Connection Error - Cannot connect to " + URL;
-                    OnError(new SimplSharpString(this.errorMessage));
-                }
-
                 req.RequestType = RequestType.Get;
 
-                //req.ContentString = body;
+                // Send request
                 resp = client.Dispatch(req);
 
+                // Cleanup leading/trailling spaces & quotes from response and return response
                 if (OnResponse != null)
                 {
                     string contentString = resp.ContentString;
@@ -241,6 +158,7 @@ namespace SimplSharpNetUtils
             }
             catch (Exception e)
             {
+                // Print any errors to the Crestron Console
                 if (OnError != null)
                 {
                     this.errorExists = 1;
@@ -256,69 +174,52 @@ namespace SimplSharpNetUtils
             return 0;
         }
 
-        public int SendCommand(string baseURL,string resource, string cmd, string psk)
+        // The SendCommand method is purely a convenience for Sony FWD/XBR Flat-panel displays
+        // It is a customized version of the POST method
+
+        public int SendCommand(string baseURL, string resource, string cmd, string psk)
         {
             HttpClient client = new HttpClient();
             HttpClientRequest req = new HttpClientRequest();
             HttpClientResponse resp;
             string reqUrl = "";
 
-            #if DEBUG
+#if DEBUG
             CrestronConsole.PrintLine("Got to SendCommand");
             CrestronConsole.PrintLine("SendCommand method - baseURL: " + baseURL);
             CrestronConsole.PrintLine("SendCommand method - resource: " + resource);
             CrestronConsole.PrintLine("SendCommand method - psk: " + psk);
             CrestronConsole.PrintLine("SendCommand method - cmd: " + cmd);
-            #endif
+#endif
 
-            if (baseURL.EndsWith("/"))
+            try
             {
-                reqUrl = string.Concat(baseURL, resource);
-            }
-            else
-            {
-                reqUrl = string.Concat(baseURL, "/", resource);
-            }
+                if (baseURL.EndsWith("/"))
+                {
+                    reqUrl = string.Concat(baseURL, resource);
+                }
+                else
+                {
+                    reqUrl = string.Concat(baseURL, "/", resource);
+                }
+#if DEBUG
+                CrestronConsole.PrintLine("SendCommand url: " + reqUrl);
+#endif
+                req.Header.AddHeader(new HttpHeader("X-Auth-PSK: " + psk));
 
-            req.Header.AddHeader(new HttpHeader("X-Auth-PSK: " + psk));
-            
-            #if DEBUG
-            foreach (HttpHeader h in req.Header)
-            {
-                CrestronConsole.PrintLine("SendCommand Header: " + h);
-            }
-            #endif
+#if DEBUG
+                foreach (HttpHeader h in req.Header)
+                {
+                    CrestronConsole.PrintLine("SendCommand Header: " + h);
+                }
+#endif
 
-            //string body = jsonParse(cmd);
-            string body = cmd;
-            
-            #if DEBUG
-            CrestronConsole.PrintLine("SendCommand method - parsed body: " + body);
-            #endif
+                string body = cmd;
 
-            // Check for valid connection
-            //try
-            //{
-            //    req.RequestType = RequestType.Head;
-            //    string testRequest = client.Get(req.Url.ToString());
-            //}
-            //catch (Exception innerEx)
-            //{
-            //    this.errorExists = 1;
-            //    this.errorMessage = string.Concat(innerEx.ToString(), innerEx.InnerException.ToString());
-            //    OnError(new SimplSharpString(innerEx.ToString() + "\n\r" + innerEx.StackTrace));
+#if DEBUG
+                CrestronConsole.PrintLine("SendCommand method - parsed body: " + body);
+#endif
 
-            //}
-            string hostAlive = Ping(URL);
-
-            if (hostAlive == FALSE)
-            {
-                this.errorExists = 1;
-                this.errorMessage = "HTTP Connection Error - Cannot connect to " + URL;
-                OnError(new SimplSharpString(this.errorMessage));
-            }
-
-            try {
                 client.KeepAlive = false;
                 client.Port = Port;
                 req.Url.Parse(reqUrl);
@@ -326,16 +227,17 @@ namespace SimplSharpNetUtils
 
                 req.ContentString = body;
                 resp = client.Dispatch(req);
-                #if DEBUG
+
+#if DEBUG
                 CrestronConsole.PrintLine("SendCommand response code: " + resp.Code);
-                CrestronConsole.PrintLine("SendCommand response: " + resp.ContentString) ;
-                #endif
+                CrestronConsole.PrintLine("SendCommand response: " + resp.ContentString);
+#endif
 
                 if (OnResponse != null)
                 {
                     string contentString = resp.ContentString;
                     contentString = contentString.Trim();
-                    if ( contentString.StartsWith("\""))
+                    if (contentString.StartsWith("\""))
                     {
                         contentString = contentString.Remove(0, 1);
                     }
@@ -348,6 +250,7 @@ namespace SimplSharpNetUtils
                     OnResponse(new SimplSharpString(contentString));
                 }
             }
+
             catch (Exception ex)
             {
                 if (OnError != null)
@@ -359,7 +262,7 @@ namespace SimplSharpNetUtils
                 }
 
                 CrestronConsole.PrintLine("Error in SimplSharpNetUtils.SendCommand: " + ex.StackTrace);
-                return -1;            
+                return -1;
             }
             return 0;
         }
